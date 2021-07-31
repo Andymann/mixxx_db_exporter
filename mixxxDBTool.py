@@ -6,10 +6,10 @@ import shutil
 from pathlib import Path
 
 # export:
-# python3 ./mixxDBTool_02.py -e /home/andy/.mixxx/mixxxdb.sqlite -c ./cache2/
+# python3 ./mixxxDBTool.py -e /home/andy/.mixxx/mixxxdb.sqlite -c ./cache2/
 #
 # import:
-# python3 ./mixxDBTool_02.py -i ./cache2/mixxxdb.sqlite -c ./cache2/ -t ./target/mixxxdb.sqlite -r ./target/files
+# python3 ./mixxxDBTool.py -i ./cache2/mixxxdb.sqlite -c ./cache2/ -t ./target/mixxxdb.sqlite -r ./target/files
 
 # Testweise Ausgabe der Tabelle 'track_locations'
 def readDatabase(pDBFile):
@@ -201,7 +201,7 @@ def copyTracksToCachedirectory(pDBFile, pDirectory, pCommonShortestPath):
             #shutil.copy2(row[1], pDirectory + os.path.dirname(row[1] ))
             os.makedirs(pDirectory + os.path.dirname(sNewPath), exist_ok=True)
             shutil.copy2(row[1], pDirectory + sNewPath)
-            #print('Successfully copied ' + row[1] + ' to ' + pDirectory + sNewPath)
+            print('Successfully copied ' + row[1] + ' to ' + pDirectory + sNewPath)
         except:
             #print('Error copying ' + row[1] + ' to ' + pDirectory + os.path.dirname(row[1] ))
             print('Error copying ' + row[1] + ' to ' + pDirectory + sNewPath)
@@ -234,6 +234,7 @@ def copyTracksToTargetDirectory(pSourceDir, pTargetDir, pDBFile):
                 os.makedirs(os.path.dirname(pTargetDir + targetFile), exist_ok=True)
                 shutil.copy2(sourceFile, pTargetDir + targetFile)
                 iCopyCounter+=1
+                print('copyTracksToTargetDirectory(): successfully copied ' + sourceFile + ' to ' + pTargetDir + targetFile)
             except:
                 print('copyTracksToTargetDirectory(): could not copy ' + sourceFile + ' to ' + pTargetDir + targetFile)
                 bReturn = False
