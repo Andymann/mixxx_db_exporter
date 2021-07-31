@@ -50,11 +50,42 @@ def checkDatabase(pDBFile):
         print('checkDatabase():' + pDBFile + ' contains ' + str(iCounter) + ' tracks. that is a problem')
         return False
 
+# For the love of nature, please have only one line in table 'directories':
+def getShortestCommonPath(pDBFile):
+    print('getShortestCommonPath():' + pDBFile)
+    sShortestPath = ''
+    bHasCommonPath = True
+
+    con = sqlite3.connect(pDBFile)
+    cur = con.cursor()
+    iCounter=0
+
+    cur.execute("SELECT directory FROM directories")
+    rows = cur.fetchall()
+    for row in rows:
+        iCounter+=1
+        sShortestPath = row[0]
+        print(row)
+        
+    if(iCounter==1):
+        print('There is a shortest path for all files in the database:' + sShortestPath)
+        sReturn = sShortestPath
+    #if bHasCommonPath:
+    #    print('There is a shortest path for all files in the database:' + sShortestPath)
+    #    sReturn = sShortestPath
+    else:
+        print('There is no shortest common path for all files in the database:')
+    
+    cur.close()
+    con.close()
+    return sShortestPath
+
+
 # maybe all files in the database have the same root folder(s).
 # If so then we can remove them in order to prevent unnecessarily deep 
 # directory structures.
-def getShortestCommonPath(pDBFile):
-    print('getShortestCommonPath()' + pDBFile)
+def x_getShortestCommonPath(pDBFile):
+    print('getShortestCommonPath():' + pDBFile)
     sReturn = None
     iShortestPath = 9999
     sShortestPath = ''
@@ -66,9 +97,11 @@ def getShortestCommonPath(pDBFile):
     cur.execute("SELECT id, location, directory FROM track_locations")
     rows = cur.fetchall()
     for row in rows:
+        print(row[2])
         if len(row[2])<iShortestPath:
             iShortestPath = len(row[2])
             sShortestPath = row[2]
+            print(sShortestPath)
         
     for row in rows:
         if not row[2].startswith(sShortestPath):
@@ -78,6 +111,8 @@ def getShortestCommonPath(pDBFile):
     if bHasCommonPath:
         print('There is a shortest path for all files in the database:' + sShortestPath)
         sReturn = sShortestPath
+    else:
+        print('There is no shortest common path for all files in the database:')
     
     cur.close()
     con.close()
@@ -129,8 +164,13 @@ def processDatabase(pDBFile, pTargetRootFolder, pCommonShortestPath):
 # Read track loactions from Database, copy files
 # If there is a common path on every file then we remove it while copying
 # in order to prevent directory clutter
+
 def copyTracksToCachedirectory(pDBFile, pDirectory, pCommonShortestPath):
-    print('copyTracksTocachedirectory():' + pDirectory + ' ' + pCommonShortestPath)
+    #if not pCommonShortestPath == None:
+    print('copyTracksTocachedirectory():' + pDirectory + ' ' + str(pCommonShortestPath))
+        #None
+    #else:
+    #    print('copyTracksTocachedirectory():')
     con = sqlite3.connect(pDBFile)
     cur = con.cursor()
 
@@ -243,12 +283,6 @@ def exportFiles(pDBFile, pCacheDir):
         print('exportFiles(): Everything went fine so far. Copying tracks now')
         copyTracksToCachedirectory(pDBFile, pCacheDir, sCommonShortestPath)
 
-        
-        #path = Path(pCacheDir + os.sep + 'mixxxFileExport')
-        #print('Up one folder:' + str(path.parents[0]))
-
-        
-        #copyDatabaseFile(pDBFile, str(path.parents[0]) + os.sep)
         return True
     else:
         return False
